@@ -1,35 +1,43 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
 
-Movie.create(
-  title: "Wonder Woman 1984",
-  overview: "Wonder Woman comes into conflict with the Soviet Union during the Cold War in the 1980s",
-  poster_url: "https://image.tmdb.org/t/p/original/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg",
-  rating: 6.9
-)
+require 'json'
+require 'open-uri'
+require 'amazing_print'
+require 'dotenv'
 
-Movie.create(
-  title: "The Shawshank Redemption",
-  overview: "Framed in the 1940s for double murder, upstanding banker Andy Dufresne begins a new life at the Shawshank prison",
-  poster_url: "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
-  rating: 8.7
-)
+Dotenv.load(".env")
+api_key = ENV['THE_MOVIE_DB_API_KEY']
 
-Movie.create(
-  title: "Titanic",
-  overview: "101-year-old Rose DeWitt Bukater tells the story of her life aboard the Titanic.",
-  poster_url: "https://image.tmdb.org/t/p/original/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
-  rating: 7.9
-)
+base_url = 'https://api.themoviedb.org/3'
 
-Movie.create(
-  title: "Ocean's Eight",
-  overview: "Debbie Ocean, a criminal mastermind, gathers a crew of female thieves to pull off the heist of the century.",
-  poster_url: "https://image.tmdb.org/t/p/original/MvYpKlpFukTivnlBhizGbkAe3v.jpg",
-  rating: 7.0
-)
+configuration_url = "#{base_url}/configuration?api_key=#{api_key}"
+configuration_serialized = open(configuration_url).read
+configuration = JSON.parse(configuration_serialized)
+
+img_secure_base_url = configuration["images"]["secure_base_url"]
+original_poster_size = "original"
+
+top_rated_page_url = "#{base_url}/movie/top_rated?api_key=#{api_key}&language=en-US&page="
+
+puts 'Cleaning DB'
+Movie.destroy_all
+
+puts 'Creating movies'
+mv_count = 0
+(1..10).each { |page_number|
+  top_rated_page_serialized = open("#{top_rated_page_url}#{page_number}").read
+  top_rated_page = JSON.parse(top_rated_page_serialized)
+  top_rated_page["results"].each do |result|
+    Movie.create(
+      title: result["title"],
+      overview: result["overview"],
+      poster_url: "#{img_secure_base_url}#{original_poster_size}#{result["poster_path"]}",
+      rating: result["vote_average"]
+    )
+    print "\r" + ("\e[K") if mv_count > 0
+    print "#{mv_count} movies created"
+    mv_count += 1
+  end
+}
+puts "\nDB ready !"
