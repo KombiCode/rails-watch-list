@@ -6,19 +6,26 @@ class ListsController < ApplicationController
   end
 
   def show
-
+    @bookmark = Bookmark.new
   end
 
   def new
     @list = List.new
+    @list.errors.clear
   end
 
   def create
     @list = List.new(list_params)
-    if @list.save
-      redirect_to list_path(@list)
-    else
-      render :new
+
+    respond_to do |format|
+      if @list.save
+        format.html { redirect_to list_path(@list), notice: 'Post was successfully created.' }
+        format.json { render :show, status: :created, location: @list }
+      else
+        format.turbo_stream
+        format.html { render :new }
+        format.json { render json: @list.errors, status: :unprocessable_entity }
+      end
     end
   end
 

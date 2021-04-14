@@ -1,0 +1,30 @@
+<%= form_with(model: list, id: dom_id(list)) do |form| %>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">New List</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <% if list.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(list.errors.count, "error") %> prohibited this list to be saved:</h2>
+        <ul>
+        <% list.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>    
+    <div class="form-group">
+      <%= form.label :name %>
+      <%= form.text_field :name, placeholder: 'Drama', class: 'form_control' %>
+    </div>  
+  </div>
+
+  <div class="modal-footer">
+    <%= form.submit class: "btn btn-primary" %>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+  </div>
+<% end %>
