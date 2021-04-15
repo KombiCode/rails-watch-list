@@ -1,7 +1,7 @@
 <%= form_with(model: list, id: dom_id(list)) do |form| %>
   <div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">New List</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <button data-controller="listerrors" data-action="listerrors#next" type="button" class="close" data-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -25,6 +25,6 @@
 
   <div class="modal-footer">
     <%= form.submit class: "btn btn-primary" %>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    <button data-controller="listerrors" data-action="listerrors#next" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
   </div>
 <% end %>
